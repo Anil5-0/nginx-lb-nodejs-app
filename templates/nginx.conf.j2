@@ -1,0 +1,28 @@
+worker_process 1;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    include mime.types; # nginx knows how to serve files based on file extension
+
+    upstream nodejs_app { # upstream is a group of servers
+        #least_conn;
+        server 127.0.0.1:3001;
+        server 127.0.0.1:3002;
+        server 127.0.0.1:3003;
+    }
+
+
+    server { # server block is a configuration block that listens on a specific port
+        listen 80;
+        server_name {{ ec2_public_ip }};
+
+        location / {
+            proxy_pass http://nodejs_app; # here we can tell it to act as web server or proxy
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr; # forwards client ip to upstream
+        }
+    }
+}
