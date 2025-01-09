@@ -1,13 +1,105 @@
 ---
-- name: Update Nginx Config & run 
-  hosts: {{ ec2_public_ip }}
+- name: Update system packages & Install docker, docker-compose and nginx
+  gather_facts: false
   become: true
-  vars: 
-    ec2_public_ip: {{ ec2_public_ip }}
+  hosts: all
+  vars_files:
+  - vars.yaml
   tasks:
-  - name: print ec2_ip
-    debug: 
-      msg: {{ ec2_public_ip }}
+  - name: Update system packages
+    ansible.builtin.yum:
+      name: '*'
+      state: latest
+
+  - name: Ensuring Docker, Nginx are installed
+    ansible.builtin.yum:
+      name: docker, nginx
+      state: present
+
+  - name: install docker compose
+    ansible.builtin.get_url: 
+      url: https://github.com/docker/compose/releases/download/v2.23.3/docker-compose-linux-{{lookup('pipe', 'uname -m')}}
+      dest: /usr/local/bin/docker-compose
+      mode: +x
+
+  - name: ensure docker is running
+    systemd:
+      name: docker
+      state: started
+
+  - name: ensure nginx is running
+    systemd:
+      name: nginx
+      state: started
+
+  - name: add user to docker admin group
+    ansible.builtin.user:
+      name: "{{ linux_user }}"
+      groups: "docker"
+      append: true
+
+  - name: Reset ssh connection to allow user changes to affect ansible user
+    ansible.builtin.meta:
+      reset_connection
+
+
+- name: Copy all the files in app folder to ec2 server
+  remote_user: "{{ linux_user }}"
+  gather_facts: false
+  hosts: all
+  vars:
+    ec2_ip: "{{ ansible_host }}"
+  vars_files:
+  - vars.yaml
+  become: yes
+  tasks:
+  - name: Ensuring all files are copied
+    ansible.builtin.copy:
+      src: ../app/
+      dest: /home/{{ linux_user }}/app/
+  
+  - name: copy nginx config file to server
+    ansible.builtin.template:
+      src: ../templates/nginx.conf.j2
+      dest: /etc/nginx/nginx.conf
+      mode: '0644'
+    notify: restart nginx
+
+  handlers:
+  - name: restart nginx
+    ansible.builtin.systemd:
+      name: nginx
+      state: restarted
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# - name: Update Nginx Config & run 
+#   hosts: {{ ec2_public_ip }}
+#   become: true
+#   vars: 
+#     ec2_public_ip: {{ ec2_public_ip }}
+#   tasks:
+#   - name: print ec2_ip
+#     debug: 
+#       msg: {{ ec2_public_ip }}
   # - name: copy nginx.conf to ec2 server
   #   ansible.builtin.copy:
   #     src: ../templates/nginx.conf.j2
