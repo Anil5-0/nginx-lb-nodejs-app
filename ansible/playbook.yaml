@@ -1,0 +1,17 @@
+---
+- name: Update Nginx Config & run 
+  hosts: {{ ec2_public_ip }}
+  become: true
+  vars: 
+    ec2_public_ip: {{ ec2_public_ip }}
+  tasks:
+  - name: print ec2_ip
+    debug: 
+      msg: {{ ec2_public_ip }}
+  # - name: copy nginx.conf to ec2 server
+  #   ansible.builtin.copy:
+  #     src: ../templates/nginx.conf.j2
+  #     dest: /etc/nginx/nginx.conf
+  #     mode: '0644'
+
+  
