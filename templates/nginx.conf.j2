@@ -1,4 +1,4 @@
-worker_process 1;
+worker_processes 1;
 
 events {
     worker_connections 1024;
@@ -9,15 +9,15 @@ http {
 
     upstream nodejs_app { # upstream is a group of servers
         #least_conn;
-        server 127.0.0.1:3001;
-        server 127.0.0.1:3002;
-        server 127.0.0.1:3003;
+        server {{ ec2_ip }}:3001;
+        server {{ ec2_ip }}:3002;
+        server {{ ec2_ip }}:3003;
     }
 
 
     server { # server block is a configuration block that listens on a specific port
         listen 80;
-        server_name {{ ec2_public_ip }};
+        server_name {{ ec2_ip }};
 
         location / {
             proxy_pass http://nodejs_app; # here we can tell it to act as web server or proxy
