@@ -2,7 +2,10 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-COPY . .
+COPY images ./images
+COPY server.js .
+COPY package.json .
+COPY index.html .
 
 RUN npm install
 
