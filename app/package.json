@@ -1,0 +1,12 @@
+{
+  "name": "nginx-reverse-proxy-demo",
+  "version": "1.0.0",
+  "description": "Demo application for Nginx reverse proxy",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
