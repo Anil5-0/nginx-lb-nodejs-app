@@ -43,6 +43,13 @@ resource "aws_security_group" "nginx-sg" {
     }
 
     ingress {
+        from_port = 3001
+        to_port = 3003
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    ingress {
         description = "HTTPS"
         from_port = 443
         to_port = 443
@@ -77,6 +84,10 @@ resource "aws_instance" "nginx-server" {
     subnet_id = aws_subnet.nginx-subnet-1.id
     vpc_security_group_ids = [aws_security_group.nginx-sg.id]
     key_name = aws_key_pair.nginx-keypair.key_name
-    user_data = base64encode(file("${path.module}/userdata.sh"))
+    #user_data = base64encode(file("${path.module}/userdata.sh"))
+
+    # provisioner "local-exec" {
+    #   command = "ansible-playbook -i ${self.public_ip}, ../ansible/playbook.yaml -e 'ec2_public_ip=${self.public_ip}'"
+    # }
 }
 
