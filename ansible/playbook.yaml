@@ -43,6 +43,28 @@
       reset_connection
 
 
+- name: Generating self signed SSL certificates 
+  gather_facts: false
+  become: true
+  hosts: all
+  tasks:
+  - name: Create a folder to store the certificates
+    ansible.builtin.file:
+      path: /etc/nginx/certs
+      state: directory
+  
+  - name: Generate an OpenSSL private key with a different size (2048 bits)
+    community.crypto.openssl_privatekey:
+      path: /etc/nginx/certs/nginx-selfsigned.key
+      size: 2048
+
+  - name: Create simple self-signed certificate
+    community.crypto.x509_certificate:
+      path: /etc/nginx/certs/nginx-selfsigned.crt
+      privatekey_path: /etc/nginx/certs/nginx-selfsigned.key
+      provider: selfsigned
+
+
 - name: Copy all the files in app folder to ec2 server
   remote_user: "{{ linux_user }}"
   gather_facts: false
@@ -71,39 +93,15 @@
       name: nginx
       state: restarted
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# - name: Update Nginx Config & run 
-#   hosts: {{ ec2_public_ip }}
-#   become: true
-#   vars: 
-#     ec2_public_ip: {{ ec2_public_ip }}
-#   tasks:
-#   - name: print ec2_ip
-#     debug: 
-#       msg: {{ ec2_public_ip }}
-  # - name: copy nginx.conf to ec2 server
-  #   ansible.builtin.copy:
-  #     src: ../templates/nginx.conf.j2
-  #     dest: /etc/nginx/nginx.conf
-  #     mode: '0644'
+- name: Ensure all upstreams are running - docker compose
+  gather_facts: false
+  hosts: all
+  become_user: "{{ linux_user }}"
+  vars_files:
+  - vars.yaml
+  tasks:
+  - name : Run docker-compose
+    ansible.builtin.shell: 
+      cmd: docker-compose -f /home/{{ linux_user }}/app/docker-compose.yaml up -d
 
   
