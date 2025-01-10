@@ -21,9 +21,29 @@ http {
         server_name {{ ec2_ip }};
 
         location / {
+            return 301 https://$host$request_uri;
+        }
+    }
+
+    server {
+        listen 443 ssl;
+        server_name {{ ec2_ip }};
+
+        ssl_certificate /etc/nginx/certs/nginx-selfsigned.crt;
+        ssl_certificate_key /etc/nginx/certs/nginx-selfsigned.key;
+
+        location / {
             proxy_pass http://nodejs_app; # here we can tell it to act as web server or proxy
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr; # forwards client ip to upstream
         }
+
+        location /health {
+            proxy_pass http://nodejs_app/health;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+
     }
+
 }
