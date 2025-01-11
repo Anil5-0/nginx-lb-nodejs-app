@@ -86,8 +86,8 @@ resource "aws_instance" "nginx-server" {
     key_name = aws_key_pair.nginx-keypair.key_name
     #user_data = base64encode(file("${path.module}/userdata.sh"))
 
-    # provisioner "local-exec" {
-    #   command = "ansible-playbook -i ${self.public_ip}, ../ansible/playbook.yaml -e 'ec2_public_ip=${self.public_ip}'"
-    # }
+    provisioner "local-exec" {
+        working_dir = "${path.module}/../ansible"
+        command = "ansible-playbook -i '${self.public_ip}', playbook.yaml" 
+    }
 }
-
