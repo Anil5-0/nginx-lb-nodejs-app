@@ -5,10 +5,14 @@ const port = process.env.PORT || 3000;
 
 const replicaApp = process.env.APP_NAME || 'app';
 
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.render('index', { replicaApp });
+    // res.sendFile(path.join(__dirname, 'index.html'));
     console.log(`Request served from ${replicaApp}`);
 });
 
