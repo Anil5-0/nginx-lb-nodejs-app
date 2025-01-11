@@ -9,9 +9,9 @@ http {
 
     # upstream is a group of servers
     upstream nodejs_app { 
-        server {{ ec2_ip }}:3001;
-        server {{ ec2_ip }}:3002;
-        server {{ ec2_ip }}:3003;
+        server localhost:3001;
+        server localhost:3002;
+        server localhost:3003;
     }
 
 
