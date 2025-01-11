@@ -80,10 +80,14 @@ Nginx is used as a reverse proxy to load balance traffic across the three apps. 
 2. Configure AWS credentials
 3. Run Terraform init and apply
 4. The public IP will be automatically shown after deployment
-    ![](/docs/images/tf_output.PNG)
+
+   ![](/docs/images/tf_output.PNG)
 5. Hit the public Ip through browser. Go to Advanced option & proceed to view app ( as it's self signed )
-    ![](/docs/images/web1.PNG)
-    ![](/docs/images/web2.PNG)
-    ![](/docs/images/web3.PNG)
-6. Upon checking the compose logs, we can see the requests are distributed in round robin fashion across 3 node.js apps
-    ![](/docs/images/compose_logs.PNG)
+
+   ![](/docs/images/web1.PNG)
+   ![](/docs/images/web2.PNG)
+   ![](/docs/images/web3.PNG)
+
+6. Upon checking the compose logs, we can see the requests are distributed in round robin fashion across 3 node-js apps
+
+   ![](/docs/images/compose_logs.PNG)
