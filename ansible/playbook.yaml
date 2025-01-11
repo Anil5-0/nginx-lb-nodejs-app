@@ -6,9 +6,12 @@
   - name: wait until server is up
     wait_for: 
       port: 22
-      host: "{{ ansible_host }}"
-    delegate_to: localhost
-
+      host: '{{ (ansible_ssh_host|default(ansible_host))|default(inventory_hostname) }}'
+      delay: 10
+      timeout: 60
+      search_regex: OpenSSH
+    vars:
+      ansible_connection: local    
 
 - name: Update system packages & Install docker, docker-compose and nginx
   gather_facts: false
